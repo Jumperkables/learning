@@ -3,6 +3,9 @@ My previous day 0004 was supposed to be basic syntax, but since i'm already a ve
 - Building libraries and importing things in C++ etc
 - How C++ deals with scope
 
+#### Checking for leaks:
+`valgrind --leak-check=full ./test`
+
 Now, heres the actual basic syntax I'll need to briefly cover
 - **GO TO EACH FILE FOR THE DETAILED NOTES ON EACH DTYPE**
 #### 1. Variables and d-types
