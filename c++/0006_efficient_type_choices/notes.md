@@ -1,4 +1,6 @@
-# Most Efficient Choices for Types
+# Choices for Types
+
+`cstd` types are generally used for compatability and portability. Inbuilts tned to be more optimised by the compiler, but the interpretation of some types may vary form platform to platform.
 
 ## 1. Ints and Numerics
 | **Use Case** | **Best Choice** | **Why?** |
@@ -79,3 +81,21 @@
 | Type Deduction for Iterators | `auto&` | `auto` is the most efficient for iterators, and `auto&` ensures that large objects are passed by reference. |
 | Type Deduction for Variables | `auto` | Allows the compiler to deduce the most appropriate type for a variable, saving development time. |
 | Type Deduction with Function Return | `decltype` | `decltype` provides more detailed and safe type inference, especially for complex return types from functions. |
+
+
+## Exercise for Testing Efficiency
+I'm making a small benchmarking challenge for fibonnaci numbers
+
+### Don't underestimate efficiency:
+- Compiling with `g++ -O3 ` REALLY increases some runtimes
+    * Many orders of magnitudes faster for `cstdint` types
+
+### Timing in C++
+- The `std::chrono` library is typical for time based benchmarking
+    * Note there are different clocks, `chrono::system_clock` and a so-called `steady_clock` and `high_resolution_clock`
+- Use `std::chrono::time_point<std::chrono::system_clock> start, end;` to set up time points
+    * `start = std::chrono::system_clock::now();`
+    * `foo();`
+    * `end = std::chrono::system_clock::now();`
+    * `std::chrono::duration<double> time_passed = end - start;`
+    * `time_passed.count();`
