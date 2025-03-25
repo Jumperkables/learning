@@ -35,9 +35,30 @@
         + Flexible for storing any pattern
         + Not always most efficient, but reasonable
 
-#### Case: 2D Sparse Semi-Structured
+#### Case: 2D Sparse Speedup on ampere GPUs
 - **2:4 Structured Sparsity**
     * Where at most 2 elements are non-zero for every 4
+    * Of every 4 consecutive elements, 2 must be non zero
+    * This is chosen by a pruning algorithm that prioritises the most significant entries
+    * I think it is assumed to mostly be applied to neural nets
+    * Generally improves both speed and memory, but mostly speed
+    * Useful for Ampere GPUs and upwards `30 series`
+    * This is **NOT** enable by default
+    * Would need to manually sort these in code and cast myself
+```python
+# TODO Check if this actually works
+import torch
+from torch import nn
+from torch.nn.utils import prune
+
+layer = model.encoder.layer[0].attention.self.query
+prune.l1_unstructured(layer, name='weight', amount=0.5) # L1 Pruning applied
+
+sparse_tensor = layer.weight.to_sparse()
+```
+![2-4_sparsity](0001-internals_efficiency/figs/2-4_sparse.png)
+- The compressed non-zero matrix
+- The accompanying mask matrix is 2 bits PER non-zero value
 
 #### 
 - **CSR: Compressed Sparse Row**
@@ -53,8 +74,15 @@
         + Good with dense sub-matrices
     * Performance:
         + Fast access to rows and efficient for matrix ops
+
+
 - **CSC: Compressed Sparse Column**
+    * Good for bigger matmuls
+    * Column-wise traversal
     * 3 arrays stored
+        + `row_indices`
+        + `values`
+        + `col_ptr`
 - **BSR: Block Sparse Row**
 
 
