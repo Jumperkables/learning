@@ -99,3 +99,69 @@ I'm making a small benchmarking challenge for fibonnaci numbers
     * `end = std::chrono::system_clock::now();`
     * `std::chrono::duration<double> time_passed = end - start;`
     * `time_passed.count();`
+
+## Make and CMake
+Compiling and making libraries
+
+### `make`
+
+
+### `cmake`
+```
+cmake_minimum_required(VERSION 3.10)
+project(MyProject)  # 2
+
+set(CMAKE_CXX_STANDARD 17)  # 3
+
+# Find Boost package
+find_package(Boost REQUIRED)
+
+# Include Boost headers
+include_directories(${Boost_INCLUDE_DIRS})
+
+# Include header files from 'include' directory
+include_directories(${PROJECT_SOURCE_DIR}/include)
+
+# Add all the source files from the 'src' directory
+file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
+
+# Add executable target
+add_executable(target ${SOURCES})
+```
+- `cmake_minimum_required(VERSION 3.10)`
+    * Obvious
+- `project(myProject)`
+    * Internal project name only no need to worry about clashes
+- `set(CMAKE_CXX_STANDARD 17)`
+    * Which standard of C++ to use ofc
+    * Rule of thumb is 17 is pretty widely adopted still, but lots of companies are getting 20 in there cos of the features
+- `find_package(Boost REQUIRED)`
+    * External libraries (think like numpy)
+    * I had to install them with my package manager beforehand
+    * This sets the below enviroment variable for Boost's header files
+- `include_directories(${Boost_INCLUDE_DIRS})`
+    * Paired with above
+- `include_directories(${PROJECT_SOURCE_DIR}/include)`
+    * Where my header files are at
+- `file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")`
+    * Where my source files are at
+- `add_executable(target ${SOURCES})`
+    * `target` is the output binary
+    * `${SOURCES}` is defined abve in `file(`
+        + Obviously this should have your `main()` entrypoint somewhere in here
+
+#### `cmake` ACTUALLY BUILDING
+Assume the following structure:
+```
+ROOT/
+    - src/
+        - main.cpp
+        - something.cpp
+    - include/
+        - my_header.h       # My headers go here
+        - external_lib/     # Keep segregated from externals
+            - half.hpp
+    - build/
+        # Purposefully Empty
+    - CMakesList.txt
+```
