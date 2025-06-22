@@ -1,6 +1,8 @@
 import time
 import torch
 
+from torch.sparse import to_sparse_semi_structured
+
 M, N, K = 2000, 2000, 2000
 BLOCK_SIZE = 10
 SPARSITY = 0.99
@@ -18,17 +20,19 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def create_well_dist(sparsity):
-    well_dist_dense = torch.threshold(torch.rand(M, N), sparsity, 0).to(device)
+    well_dist_dense = torch.threshold(torch.rand(M, N, dtype=torch.float16), sparsity, 0).to(device)
     well_dist_coo = well_dist_dense.to_sparse(layout=torch.sparse_coo).to(device)
     well_dist_csr = well_dist_dense.to_sparse(layout=torch.sparse_csr).to(device)
     well_dist_csc = well_dist_dense.to_sparse(layout=torch.sparse_csc).to(device)
+    well_dist_24 = to_sparse_semi_structured(well_dist_dense).to(device)
     #well_dist_bsr = well_dist_dense.to_sparse_bsr(blocksize=BLOCK_SIZE).to(device)
     return_dict = {
         'dense': well_dist_dense,
         'coo  ': well_dist_coo,
         'csr  ': well_dist_csr,
         'csc  ': well_dist_csc,
-        #'bsr  ': well_dist_bsr
+        #'bsr  ': well_dist_bsr,
+        '2-4ss': well_dist_24,
     }
     return return_dict
 
@@ -134,8 +138,8 @@ if __name__ == "__main__":
         for key2, val2 in all_dicts.items():
             for name1, tensor1 in val1.items():
                 for name2, tensor2 in val2.items():
-                    if not (name1 == 'dense' and name2 == 'dense'):
-                        continue
+                    #if not (name1 == 'dense' and name2 == 'dense'):
+                    #    continue
                     if set([name1, name2]) not in BANNED_NAME_PAIRS:
                         start = time.time()
                         tensor1 @ tensor2
